@@ -69,6 +69,7 @@ func main() {
 	lis := append([]string{}, "run", "github.com/sour-is/go-assetfs/cmd/bindata")
 	lis = append(lis, args...)
 
+	fmt.Fprintln(os.Stderr, "RUN", path, lis)
 	cmd := exec.Command(path, lis...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
