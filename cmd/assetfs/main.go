@@ -67,9 +67,9 @@ func main() {
 	}
 
 	lis := append([]string{}, "run", "github.com/sour-is/go-assetfs/cmd/bindata")
-	lis = append(lis, os.Args[1:]...)
+	lis = append(lis, args...)
 
-	cmd := exec.Command(path, args...)
+	cmd := exec.Command(path, lis...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
