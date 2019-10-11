@@ -50,7 +50,7 @@ func getBinDataFile() (*os.File, *os.File, []string, error) {
 		return &os.File{}, &os.File{}, nil, err
 	}
 
-	bindataArgs = append([]string{"-o", tempFile.Name()}, bindataArgs...)
+	// bindataArgs = append([]string{"-o", tempFile.Name()}, bindataArgs...)
 	return outputFile, tempFile, bindataArgs, nil
 }
 
