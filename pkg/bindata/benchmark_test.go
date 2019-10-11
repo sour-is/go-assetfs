@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	bindata "github.com/sour-is/go-bindata/pkg/bindata"
+	bindata "github.com/sour-is/go-assetfs/pkg/bindata"
 )
 
 func dirSize(path string) (int64, error) {

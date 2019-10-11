@@ -66,7 +66,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	lis := append([]string{}, "run", "github.com/sour-is/go-bindata/cmd/bindata")
+	lis := append([]string{}, "run", "github.com/sour-is/go-assetfs/cmd/bindata")
 	lis = append(lis, os.Args[1:]...)
 
 	cmd := exec.Command(path, args...)
@@ -92,7 +92,7 @@ func main() {
 			if debug {
 				fmt.Fprintln(out, "\t\"net/http\"")
 			} else {
-				fmt.Fprintln(out, "\t\"github.com/sour-is/go-bindata/pkg/assetfs\"")
+				fmt.Fprintln(out, "\t\"github.com/sour-is/go-assetfs/pkg/assetfs\"")
 			}
 			done = true
 		}
