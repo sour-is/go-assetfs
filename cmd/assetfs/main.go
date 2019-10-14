@@ -27,7 +27,7 @@ func isDebug(args []string) bool {
 	return *debug
 }
 
-func getBinDataFile() (*os.File, *os.File, []string, error) {
+func getBinDataFile() (*os.File, string, []string, error) {
 	bindataArgs := make([]string, 0)
 	outputLoc := "bindata.go"
 
@@ -42,16 +42,17 @@ func getBinDataFile() (*os.File, *os.File, []string, error) {
 
 	tempFile, err := ioutil.TempFile(os.TempDir(), "")
 	if err != nil {
-		return &os.File{}, &os.File{}, nil, err
+		return &os.File{}, "", nil, err
 	}
+	tempFile.Close()
 
 	outputFile, err := os.Create(outputLoc)
 	if err != nil {
-		return &os.File{}, &os.File{}, nil, err
+		return &os.File{}, "", nil, err
 	}
 
-	// bindataArgs = append([]string{"-o", tempFile.Name()}, bindataArgs...)
-	return outputFile, tempFile, bindataArgs, nil
+	bindataArgs = append([]string{"-o", tempFile.Name()}, bindataArgs...)
+	return outputFile, tempFile.Name(), bindataArgs, nil
 }
 
 func main() {
@@ -60,7 +61,7 @@ func main() {
 		fmt.Println("Cannot find go executable in path")
 		os.Exit(1)
 	}
-	out, in, args, err := getBinDataFile()
+	out, inFile, args, err := getBinDataFile()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error: cannot create temporary file", err)
 		os.Exit(1)
@@ -69,7 +70,6 @@ func main() {
 	lis := append([]string{}, "run", "github.com/sour-is/go-assetfs/cmd/bindata")
 	lis = append(lis, args...)
 
-	fmt.Fprintln(os.Stderr, "RUN", path, lis)
 	cmd := exec.Command(path, lis...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -78,7 +78,9 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Error: go-bindata: ", err)
 		os.Exit(1)
 	}
+
 	debug := isDebug(os.Args[1:])
+	in, _ := os.Open(inFile)
 	r := bufio.NewReader(in)
 	done := false
 	for line, isPrefix, err := r.ReadLine(); err == nil; line, isPrefix, err = r.ReadLine() {
@@ -98,6 +100,11 @@ func main() {
 			done = true
 		}
 	}
+	in.Close()
+	if err := os.Remove(in.Name()); err != nil {
+		fmt.Fprintln(os.Stderr, "Cannot remove", in.Name(), err)
+	}
+
 	if debug {
 		fmt.Fprintln(out, `
 func assetFS() http.FileSystem {
@@ -118,10 +125,7 @@ func assetFS() *assetfs.AssetFS {
 	panic("unreachable")
 }`)
 	}
+
 	// Close files BEFORE remove calls (don't use defer).
-	in.Close()
 	out.Close()
-	if err := os.Remove(in.Name()); err != nil {
-		fmt.Fprintln(os.Stderr, "Cannot remove", in.Name(), err)
-	}
 }
